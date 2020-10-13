@@ -24,3 +24,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+iliasDownloader/*
+.vscode/*
+output/*
+download.py

@@ -167,14 +167,18 @@ class IliasDownloaderUniMA():
 
 	def _parseFileProperties(self, bs_item):
 		p = bs_item.find_all('span', 'il_ItemProperty')
-		file_ending = p[0].get_text().split()[0]
-		file_size_tmp = p[1].get_text().replace(".","").replace(",", ".").split()
+		if(p[0].get_text().split()[0]=="Dateiendung"):
+			file_ending=""
+			file_size_tmp = p[2].get_text().replace(".","").replace(",", ".").split()
+		else:
+			file_ending = p[0].get_text().split()[0]
+			file_size_tmp = p[1].get_text().replace(".","").replace(",", ".").split()
 		file_size = float(file_size_tmp[0])
 		if file_size_tmp[1] == "KB":
 			file_size *= 1e-3
 		p = [i for i in p if "Version" not in i.text]
-		if len(p) > 2:
-			file_mod_date = parsedate(self.translate_date(p[2].get_text()), dayfirst=True)
+		if(p[0].get_text().split()[0]=="Dateiendung"):
+			file_mod_date = parsedate(self.translate_date(p[3].get_text()))
 		else:
 			file_mod_date = datetime.fromisoformat('2000-01-01')
 		return file_ending, file_size, file_mod_date
@@ -196,11 +200,22 @@ class IliasDownloaderUniMA():
 		if self.params['verbose']:
 			print(f"Scanning Folder...\n{file_path}\n{url}")
 			print("-------------------------------------------------")
-		for v in videos:
-			el_url = urljoin(self.base_url, v.find('source')['src'])
-			el_name = v.find('div', {'class': 'ilc_media_caption_MediaCaption'}).get_text()
+		for v in videos:			
+#			el_url = urljoin(self.base_url, v.find('embed')['src'])
+			if(v.find('source')!=None):
+				el_url = urljoin(self.base_url, v.find('source')['src'])
+				file_ending = v.find('source')['type'].split("/")[-1]
+			else:
+				el_url = urljoin(self.base_url, v.find('embed')['src'])
+				file_ending = v.find('embed')['type'].split("/")[-1]
+			if(file_ending=="quicktime"):
+				file_ending="mp4"
+			if(v.find('div', {'class': 'ilc_media_caption_MediaCaption'}) != None):
+				el_name = v.find('div', {'class': 'ilc_media_caption_MediaCaption'}).get_text()
+			else:
+				regex = re.search("([^\/]+)\?", el_url)
+				el_name = regex.group(1)
 			el_type = 'file'
-			file_ending = v.find('source')['type'].split("/")[-1]
 			file_size = math.nan
 			file_mod_date = datetime.fromisoformat('2000-01-01')
 			self.files += [{
@@ -218,7 +233,6 @@ class IliasDownloaderUniMA():
 				continue
 			el_url =  urljoin(self.base_url, subitem['href'])
 			el_name = subitem.get_text()
-			#print(f"URL: {el_url}, Name: {el_name}")
 			el_type = self._determineItemType(el_url)
 			if el_type == "file":
 				file_ending, file_size, file_mod_date = self._parseFileProperties(i)
@@ -238,28 +252,7 @@ class IliasDownloaderUniMA():
 
 
 	def scanTaskUnit(self, course_name, url_to_scan):
-		url = urljoin(self.base_url, url_to_scan)
-		soup = BeautifulSoup(self.session.get(url).content, "lxml")
-		task_unit_name = soup.find("a", {"class" : "ilAccAnchor"}).get_text()  
-		file_path = course_name + "/" + "Aufgaben/" + task_unit_name + "/"
-		task_items = soup.find("div", {"id":"infoscreen_section_1"}).find_all("div", "form-group")
-		if self.params['verbose']:
-			print(f"Scanning TaskUnit...\n{file_path}\n{url}")
-			print("-------------------------------------------------")
-		for i in task_items:
-			el_url = urljoin(self.base_url, i.find('a')['href'])
-			el_name = i.find("div", 'il_InfoScreenProperty').get_text()
-			el_type = 'file'
-			file_mod_date = datetime.fromisoformat('2000-01-01')
-			file_size = math.nan
-			self.files += [{
-				'course': course_name,
-				'type': el_type,
-				'name': el_name,
-				'size': file_size,
-				'mod-date': file_mod_date,
-				'url': el_url,
-				'path': file_path}]
+		pass
 
 	def scanLernmaterial(self, course_name, url_to_scan):
 		pass
