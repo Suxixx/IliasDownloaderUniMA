@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 test.py
+iliasDownloader/*
+.vscode/*
+output/*
 
 # C extensions
 *.so
@@ -25,7 +28,3 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-iliasDownloader/*
-.vscode/*
-output/*
-download.py
