@@ -250,6 +250,31 @@ class IliasDownloaderUniMA():
 
 	def scanTaskUnit(self, course_name, url_to_scan):
 		pass
+		#currently not using since it produces errors for one of my classes 
+		# def scanTaskUnit(self, course_name, url_to_scan):
+		# url = urljoin(self.base_url, url_to_scan)
+		# soup = BeautifulSoup(self.session.get(url).content, "lxml")
+		# task_unit_name = soup.find("a", {"class" : "ilAccAnchor"}).get_text()  
+		# file_path = course_name + "/" + "Aufgaben/" + task_unit_name + "/"
+		# task_items = soup.find("div", {"id":"infoscreen_section_1"}).find_all("div", "form-group")
+		# if self.params['verbose']:
+		# 	print(f"Scanning TaskUnit...\n{file_path}\n{url}")
+		# 	print("-------------------------------------------------")
+		# for i in task_items:
+		# 	el_url = urljoin(self.base_url, i.find('a')['href'])
+		# 	el_name = i.find("div", 'il_InfoScreenProperty').get_text()
+		# 	el_type = 'file'
+		# 	file_mod_date = datetime.fromisoformat('2000-01-01')
+		# 	file_size = math.nan
+		# 	self.files += [{
+		# 		'course': course_name,
+		# 		'type': el_type,
+		# 		'name': el_name,
+		# 		'size': file_size,
+		# 		'mod-date': file_mod_date,
+		# 		'url': el_url,
+		# 		'path': file_path}]
+
 
 	def scanLernmaterial(self, course_name, url_to_scan):
 		pass
